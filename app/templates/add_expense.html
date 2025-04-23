@@ -1,0 +1,12 @@
+{% extends 'layout.html' %}
+{% block title %}Add Expense{% endblock %}
+{% block content %}
+<h2>Add New Expense</h2>
+<form method="POST">
+    {{ form.hidden_tag() }}
+    <div class="mb-3">{{ form.title.label }} {{ form.title(class="form-control") }}</div>
+    <div class="mb-3">{{ form.category.label }} {{ form.category(class="form-control") }}</div>
+    <div class="mb-3">{{ form.amount.label }} {{ form.amount(class="form-control") }}</div>
+    {{ form.submit(class="btn btn-success") }}
+</form>
+{% endblock %}
