@@ -1,7 +1,8 @@
-from flask import Flask
-from flask_sqlalchemy import SQLAlchemy
-from flask_login import LoginManager
+from flask import Flask # type: ignore
+from flask_sqlalchemy import SQLAlchemy # type: ignore
+from flask_login import LoginManager # type: ignore
 from config import Config
+import os 
 
 db = SQLAlchemy()
 login_manager = LoginManager()
