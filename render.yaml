@@ -3,7 +3,7 @@ services:
     name: spendwise-app
     env: python
     buildCommand: "pip install -r requirements.txt"
-    startCommand: "gunicorn run:app"
+    startCommand: "python init_db.py && gunicorn run:app"
     envVars:
       - key: SECRET_KEY
         generateValue: true
