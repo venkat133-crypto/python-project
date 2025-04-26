@@ -13,10 +13,14 @@ class User(UserMixin, db.Model):
     password = db.Column(db.String(200), nullable=False)
 
 
+from . import db
+from datetime import datetime
+
 class Expense(db.Model):
     id = db.Column(db.Integer, primary_key=True)
-    title = db.Column(db.String(100), nullable=False)
-    category = db.Column(db.String(50), nullable=False)
+    category = db.Column(db.String(100), nullable=False)
     amount = db.Column(db.Float, nullable=False)
     date = db.Column(db.DateTime, default=datetime.utcnow)
-    user_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False)
+    description = db.Column(db.String(255))
+    user_id = db.Column(db.Integer, db.ForeignKey('user.id'))  # optional if you relate expenses to users
+

@@ -52,11 +52,11 @@ def add_expense():
     form = ExpenseForm()
     if form.validate_on_submit():
         expense = Expense(
-            title=form.title.data,
-            category=form.category.data,
-            amount=form.amount.data,
-            owner=current_user
-        )
+    category=request.form['category'],
+    amount=float(request.form['amount']),
+    description=request.form.get('description', ''),
+    user_id=current_user.id  # Pass user id from logged-in user
+)
         db.session.add(expense)
         db.session.commit()
         flash('Expense added successfully!', 'success')
