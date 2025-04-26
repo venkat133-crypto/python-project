@@ -1,6 +1,43 @@
 body {
-    font-family: Arial, sans-serif;
+    font-family: 'Poppins', sans-serif;
+    background: linear-gradient(to right, #f8f9fa, #e9ecef);
+    min-height: 100vh;
 }
+
 h2 {
+    font-weight: 600;
     margin-bottom: 20px;
+    text-align: center;
+}
+
+.table {
+    background: #fff;
+    border-radius: 10px;
+    overflow: hidden;
+    box-shadow: 0 4px 8px rgba(0,0,0,0.05);
+}
+
+.table-hover tbody tr:hover {
+    background-color: #f1f3f5;
+}
+
+form {
+    background: #fff;
+    padding: 25px;
+    border-radius: 10px;
+    box-shadow: 0 4px 8px rgba(0,0,0,0.05);
+}
+
+form input, form button {
+    border-radius: 8px;
+}
+
+.btn-primary, .btn-outline-light, .btn-light {
+    border-radius: 20px;
+    padding: 8px 20px;
+    transition: all 0.3s ease;
+}
+
+.btn-primary:hover, .btn-outline-light:hover, .btn-light:hover {
+    transform: scale(1.05);
 }

@@ -1,19 +1,25 @@
 {% extends 'base.html' %}
 {% block content %}
-<h2>Add New Expense</h2>
-<form method="POST">
-    <div class="mb-3">
-        <label>Category</label>
-        <input type="text" name="category" class="form-control" required>
+<div class="row justify-content-center">
+    <div class="col-md-6">
+        <form method="POST">
+            <h2 class="text-center mb-4">Add New Expense</h2>
+            <div class="mb-3">
+                <label class="form-label">Category</label>
+                <input type="text" name="category" class="form-control" placeholder="e.g., Groceries" required>
+            </div>
+            <div class="mb-3">
+                <label class="form-label">Amount</label>
+                <input type="number" name="amount" class="form-control" step="0.01" placeholder="e.g., 45.50" required>
+            </div>
+            <div class="mb-3">
+                <label class="form-label">Description</label>
+                <input type="text" name="description" class="form-control" placeholder="Optional">
+            </div>
+            <div class="d-grid">
+                <button type="submit" class="btn btn-primary">Add Expense</button>
+            </div>
+        </form>
     </div>
-    <div class="mb-3">
-        <label>Amount</label>
-        <input type="number" name="amount" class="form-control" step="0.01" required>
-    </div>
-    <div class="mb-3">
-        <label>Description</label>
-        <input type="text" name="description" class="form-control">
-    </div>
-    <button type="submit" class="btn btn-primary">Add Expense</button>
-</form>
+</div>
 {% endblock %}
