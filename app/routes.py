@@ -1,4 +1,4 @@
-from flask import Blueprint, render_template, request, redirect, url_for
+from flask import Blueprint, render_template, request, redirect, url_for, flash
 from flask_login import login_required, login_user, logout_user, current_user
 from .models import Expense, User
 from . import db
@@ -9,8 +9,16 @@ main = Blueprint('main', __name__)
 @main.route('/')
 @login_required
 def index():
-    expenses = Expense.query.filter_by(user_id=current_user.id).order_by(Expense.date.desc()).all()
-    return render_template('index.html', expenses=expenses)
+    category_filter = request.args.get('category')
+    if category_filter:
+        expenses = Expense.query.filter_by(user_id=current_user.id, category=category_filter).order_by(Expense.date.desc()).all()
+    else:
+        expenses = Expense.query.filter_by(user_id=current_user.id).order_by(Expense.date.desc()).all()
+
+    total_amount = sum(exp.amount for exp in expenses)
+    categories = db.session.query(Expense.category).distinct().filter_by(user_id=current_user.id).all()
+
+    return render_template('index.html', expenses=expenses, total_amount=total_amount, categories=[c[0] for c in categories])
 
 @main.route('/add', methods=['GET', 'POST'])
 @login_required
@@ -19,17 +27,34 @@ def add_expense():
         category = request.form['category']
         amount = request.form['amount']
         description = request.form.get('description', '')
-
-        expense = Expense(
-            category=category,
-            amount=float(amount),
-            description=description,
-            user_id=current_user.id
-        )
+        expense = Expense(category=category, amount=float(amount), description=description, user_id=current_user.id)
         db.session.add(expense)
         db.session.commit()
+        flash('Expense added successfully!')
         return redirect(url_for('main.index'))
     return render_template('add_expense.html')
+
+@main.route('/edit/<int:expense_id>', methods=['GET', 'POST'])
+@login_required
+def edit_expense(expense_id):
+    expense = Expense.query.get_or_404(expense_id)
+    if request.method == 'POST':
+        expense.category = request.form['category']
+        expense.amount = float(request.form['amount'])
+        expense.description = request.form.get('description', '')
+        db.session.commit()
+        flash('Expense updated successfully!')
+        return redirect(url_for('main.index'))
+    return render_template('add_expense.html', expense=expense)
+
+@main.route('/delete/<int:expense_id>')
+@login_required
+def delete_expense(expense_id):
+    expense = Expense.query.get_or_404(expense_id)
+    db.session.delete(expense)
+    db.session.commit()
+    flash('Expense deleted successfully!')
+    return redirect(url_for('main.index'))
 
 @main.route('/login', methods=['GET', 'POST'])
 def login():
@@ -40,6 +65,8 @@ def login():
         if user and check_password_hash(user.password, password):
             login_user(user)
             return redirect(url_for('main.index'))
+        else:
+            flash('Invalid login details')
     return render_template('login.html')
 
 @main.route('/register', methods=['GET', 'POST'])
@@ -47,12 +74,14 @@ def register():
     if request.method == 'POST':
         email = request.form['email']
         password = request.form['password']
-        user = User.query.filter_by(email=email).first()
-        if not user:
+        existing_user = User.query.filter_by(email=email).first()
+        if not existing_user:
             new_user = User(email=email, password=generate_password_hash(password, method='pbkdf2:sha256'))
             db.session.add(new_user)
             db.session.commit()
             return redirect(url_for('main.login'))
+        else:
+            flash('User already exists!')
     return render_template('register.html')
 
 @main.route('/logout')
