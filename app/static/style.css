@@ -1,6 +1,5 @@
 body {
     font-family: 'Poppins', sans-serif;
-    background: linear-gradient(to right, #f8f9fa, #e9ecef);
     min-height: 100vh;
 }
 
@@ -44,4 +43,32 @@ form input, form button {
 
 .badge {
     font-size: 90%;
+}
+
+/* Light / Dark Themes */
+:root {
+    --bs-body-bg: #f8f9fa;
+    --bs-body-color: #212529;
+}
+[data-theme="dark"] {
+    --bs-body-bg: #212529;
+    --bs-body-color: #f8f9fa;
+}
+body.bg-body {
+    background-color: var(--bs-body-bg);
+    color: var(--bs-body-color);
+}
+.navbar, .card, .form-control, .table {
+    background-color: var(--bs-body-bg) !important;
+    color: var(--bs-body-color) !important;
+}
+
+/* Progress bar colors */
+.progress-bar.bg-success { background-color: #4CAF50 !important; }
+.progress-bar.bg-warning { background-color: #FFC107 !important; }
+.progress-bar.bg-danger { background-color: #F44336 !important; }
+
+/* Toast */
+.toast {
+    border-radius: 10px;
 }

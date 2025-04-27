@@ -5,12 +5,20 @@ from . import db
 from werkzeug.security import generate_password_hash, check_password_hash
 import csv
 import io
+from datetime import datetime
+
 
 main = Blueprint('main', __name__)
 
 @main.route('/')
 @login_required
 def index():
+    # Check if the month changed, reset if needed
+    current_month = datetime.now().strftime('%B %Y')  # Example: 'April 2025'
+    if current_user.budget_month != current_month:
+        current_user.budget_month = current_month
+        db.session.commit()
+
     category_filter = request.args.get('category')
     if category_filter:
         expenses = Expense.query.filter_by(user_id=current_user.id, category=category_filter).order_by(Expense.date.desc()).all()
@@ -28,10 +36,34 @@ def index():
         else:
             category_totals[exp.category] = exp.amount
 
+    # Calculate budget usage %
+    budget_percentage = 0
+    if current_user.budget > 0:
+        budget_percentage = (total_amount / current_user.budget) * 100
+
     return render_template('index.html', expenses=expenses, total_amount=total_amount,
                            categories=[c[0] for c in categories],
                            chart_labels=list(category_totals.keys()),
-                           chart_values=list(category_totals.values()))
+                           chart_values=list(category_totals.values()),
+                           budget=current_user.budget,
+                           budget_percentage=budget_percentage)
+
+@main.route('/settings', methods=['GET', 'POST'])
+@login_required
+def settings():
+    if request.method == 'POST':
+        budget = request.form.get('budget')
+        try:
+            current_user.budget = float(budget)
+            current_user.budget_month = datetime.now().strftime('%B %Y')
+            db.session.commit()
+            flash('Budget updated successfully!', 'success')
+            return redirect(url_for('main.index'))
+        except:
+            flash('Invalid budget value.', 'danger')
+            return redirect(url_for('main.settings'))
+    return render_template('settings.html')
+
 
 @main.route('/add', methods=['GET', 'POST'])
 @login_required
