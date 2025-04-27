@@ -16,11 +16,12 @@
                 {% endfor %}
             </select>
             <button type="submit" class="btn btn-primary">Filter</button>
+            <a href="{{ url_for('main.export_expenses') }}" class="btn btn-outline-success ms-2">Export CSV</a>
         </form>
     </div>
 </div>
 
-<div class="card p-4 shadow-sm">
+<div class="card p-4 shadow-sm mb-4">
     <h2 class="text-center mb-4">All Expenses</h2>
     <table class="table table-hover table-striped">
         <thead>
@@ -48,4 +49,27 @@
         </tbody>
     </table>
 </div>
+
+<div class="card p-4 shadow-sm">
+    <h4 class="text-center">Expense Breakdown</h4>
+    <canvas id="expenseChart" height="150"></canvas>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script>
+var ctx = document.getElementById('expenseChart').getContext('2d');
+var expenseChart = new Chart(ctx, {
+    type: 'pie',
+    data: {
+        labels: {{ chart_labels|tojson }},
+        datasets: [{
+            label: 'Expenses',
+            data: {{ chart_values|tojson }},
+            backgroundColor: [
+                '#4CAF50', '#FF9800', '#2196F3', '#F44336', '#9C27B0', '#00BCD4', '#8BC34A'
+            ]
+        }]
+    }
+});
+</script>
 {% endblock %}

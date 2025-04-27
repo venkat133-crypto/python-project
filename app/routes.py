@@ -1,8 +1,10 @@
-from flask import Blueprint, render_template, request, redirect, url_for, flash
+from flask import Blueprint, render_template, request, redirect, url_for, flash, Response
 from flask_login import login_required, login_user, logout_user, current_user
 from .models import Expense, User
 from . import db
 from werkzeug.security import generate_password_hash, check_password_hash
+import csv
+import io
 
 main = Blueprint('main', __name__)
 
@@ -18,7 +20,18 @@ def index():
     total_amount = sum(exp.amount for exp in expenses)
     categories = db.session.query(Expense.category).distinct().filter_by(user_id=current_user.id).all()
 
-    return render_template('index.html', expenses=expenses, total_amount=total_amount, categories=[c[0] for c in categories])
+    # Data for Chart
+    category_totals = {}
+    for exp in expenses:
+        if exp.category in category_totals:
+            category_totals[exp.category] += exp.amount
+        else:
+            category_totals[exp.category] = exp.amount
+
+    return render_template('index.html', expenses=expenses, total_amount=total_amount,
+                           categories=[c[0] for c in categories],
+                           chart_labels=list(category_totals.keys()),
+                           chart_values=list(category_totals.values()))
 
 @main.route('/add', methods=['GET', 'POST'])
 @login_required
@@ -55,6 +68,26 @@ def delete_expense(expense_id):
     db.session.commit()
     flash('Expense deleted successfully!')
     return redirect(url_for('main.index'))
+
+@main.route('/export')
+@login_required
+def export_expenses():
+    expenses = Expense.query.filter_by(user_id=current_user.id).order_by(Expense.date.desc()).all()
+
+    output = io.StringIO()
+    writer = csv.writer(output)
+
+    # Write headers
+    writer.writerow(['Date', 'Category', 'Description', 'Amount'])
+
+    # Write data rows
+    for exp in expenses:
+        writer.writerow([exp.date.strftime('%Y-%m-%d'), exp.category, exp.description, f"{exp.amount:.2f}"])
+
+    output.seek(0)
+
+    return Response(output, mimetype="text/csv",
+                    headers={"Content-Disposition": "attachment;filename=expenses.csv"})
 
 @main.route('/login', methods=['GET', 'POST'])
 def login():
